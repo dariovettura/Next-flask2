@@ -5,54 +5,48 @@ import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [input, setInput] = useState('');
-  const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState(null);
+  const [response, setResponse] = useState('');
 
   const handleSubmit = async (e:any) => {
-    e.preventDefault();
+      e.preventDefault();
 
-    try {
-      const response = await fetch('/api/python', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: input }),
-      });
+      try {
+          const res = await fetch('/api/test', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ input }),
+          });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+          if (!res.ok) {
+              throw new Error('Qualcosa è andato storto');
+          }
+
+          const data = await res.json();
+          setResponse(data.response);
+      } catch (error) {
+          console.error(error);
+          setResponse('Errore nella richiesta');
       }
-
-      const data = await response.json();
-      setResult(data);
-      setError(null);
-    } catch (err:any) {
-      setError(err.message);
-      setResult(null);
-    }
   };
 
   return (
-    <div>
-      <h1>Date Parser</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Inserisci la tua richiesta"
-        />
-        <button type="submit">Invia</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {result && (
-        <div>
-          <p>Check-in: {result.checkin}</p>
-          <p>Check-out: {result.checkout}</p>
-        </div>
-      )}
-    </div>
+      <div>
+          <h1>Invia Input</h1>
+          <form onSubmit={handleSubmit}>
+              <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Scrivi qualcosa..."
+                  required
+              />
+              <button type="submit">Invia</button>
+          </form>
+          {response && <p>Risposta: {response}</p>}
+      </div>
   );
-}
+};
+
 
